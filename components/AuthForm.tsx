@@ -49,7 +49,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
         const userCredential = await createUserWithEmailAndPassword(
           auth,
           email,
-          password
+          password,
         );
 
         const result = await signUp({
@@ -64,15 +64,16 @@ const AuthForm = ({ type }: { type: FormType }) => {
           return;
         }
 
-        toast.success("Account created successfully. Please sign in.");
-        router.push("/sign-in");
+        toast.success("Signed in successfully.");
+        router.refresh();
+        router.push("/");
       } else {
         const { email, password } = data;
 
         const userCredential = await signInWithEmailAndPassword(
           auth,
           email,
-          password
+          password,
         );
 
         const idToken = await userCredential.user.getIdToken();
@@ -81,10 +82,15 @@ const AuthForm = ({ type }: { type: FormType }) => {
           return;
         }
 
-        await signIn({
+        const result = await signIn({
           email,
           idToken,
         });
+
+        if (!result?.success) {
+          toast.error(result?.message || "Sign in failed. Please try again.");
+          return;
+        }
 
         toast.success("Signed in successfully.");
         router.push("/");
@@ -148,7 +154,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
           {isSignIn ? "No account yet?" : "Have an account already?"}
           <Link
             href={!isSignIn ? "/sign-in" : "/sign-up"}
-            className="font-bold text-user-primary ml-1"
+            className="font-bold text-user-200 ml-1"
           >
             {!isSignIn ? "Sign In" : "Sign Up"}
           </Link>
